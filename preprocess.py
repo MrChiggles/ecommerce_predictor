@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 def get_data():
-    df =pd.read_csv('ecommerce_data.csv')
+    df = pd.read_csv('ecommerce_data.csv')
     data = df.as_matrix()
 
     X = data[:, :-1]
@@ -19,8 +19,12 @@ def get_data():
         t = int(X[i,D-1])
         X2[i, t + D -1] = 1
 
+    print(X2[1, :])
+
     Z = np.zeros((N, 4))
     Z[np.arange(N), X[:, D-1].astype(np.int32)] = 1
+
+    print(Y[15])
 
     return X2, Y
 
