@@ -19,12 +19,8 @@ def get_data():
         t = int(X[i,D-1])
         X2[i, t + D -1] = 1
 
-    print(X2[1, :])
-
     Z = np.zeros((N, 4))
     Z[np.arange(N), X[:, D-1].astype(np.int32)] = 1
-
-    print(Y[15])
 
     return X2, Y
 
