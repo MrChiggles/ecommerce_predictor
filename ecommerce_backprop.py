@@ -29,36 +29,37 @@ def classification_rate(labels, predicted):
     return float(correct / total)
 
 def derivative_w2(hidden, labels, predicted):
-    return hidden.T.dot(labels - predicted)
+    return hidden.T.dot(predicted - labels)
 
 def derivative_b2(labels, predicted):
     # why sum on axis 0?
-    return (labels - predicted).sum(axis=0)
+    return (predicted - labels).sum(axis=0)
 
 def derivative_w1(input, hidden, labels, predicted, W2):
     # our input layer should have 1500 x 2 dimensions
-    N, D = input.shape
+    # N, D = input.shape
     # our W2 layer should have 2 x 3 dimensions
-    M, K = W2.shape
+    # M, K = W2.shape
 
     # 2 x 3 shape
-    ret1 = np.zeros((D, M))
+    # ret1 = np.zeros((D, M))
 
-    for n in range(N):
-        for k in range(K):
-            for m in range(M):
-                for d in range(D):
-                    ret1[d, m] += (predicted[n, k] - predicted[n, k]) * W2[m, k] * hidden[n, m] * (1-hidden[n, m]) * input[n, d]
+    # for n in range(N):
+    #     for k in range(K):
+    #         for m in range(M):
+    #             for d in range(D):
+    #                 ret1[d, m] += (predicted[n, k] - labels[n, k]) * W2[m, k] * hidden[n, m] * (1-hidden[n, m]) * input[n, d]
 
-    return ret1
+    # (1 - hidden * hidden)
+
+    return input.T.dot((predicted - labels).dot(W2.T) * (1 - hidden * hidden))
 
 def derivative_b1(labels, predicted, W2, hidden):
-    return ((predicted - predicted).dot(W2.T) * hidden * (1 - hidden)).sum(axis=0)
+    return ((predicted - labels).dot(W2.T) * hidden * (1 - hidden)).sum(axis=0)
 
 def main():
 
     X, Y = get_data()
-    print(X[0, :])
     N, D = X.shape
     M = 5
     K = 4
@@ -74,7 +75,7 @@ def main():
     W2 = np.random.randn(M, K)
     b2 = np.random.randn(K)
 
-    alpha = 1e6
+    alpha = 0.001
     costs = []
     epochs = 10000
 
