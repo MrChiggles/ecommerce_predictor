@@ -36,22 +36,6 @@ def derivative_b2(labels, predicted):
     return (predicted - labels).sum(axis=0)
 
 def derivative_w1(input, hidden, labels, predicted, W2):
-    # our input layer should have 1500 x 2 dimensions
-    # N, D = input.shape
-    # our W2 layer should have 2 x 3 dimensions
-    # M, K = W2.shape
-
-    # 2 x 3 shape
-    # ret1 = np.zeros((D, M))
-
-    # for n in range(N):
-    #     for k in range(K):
-    #         for m in range(M):
-    #             for d in range(D):
-    #                 ret1[d, m] += (predicted[n, k] - labels[n, k]) * W2[m, k] * hidden[n, m] * (1-hidden[n, m]) * input[n, d]
-
-    # (1 - hidden * hidden)
-
     return input.T.dot((predicted - labels).dot(W2.T) * (1 - hidden * hidden))
 
 def derivative_b1(labels, predicted, W2, hidden):
@@ -59,16 +43,30 @@ def derivative_b1(labels, predicted, W2, hidden):
 
 def main():
 
-    X, Y = get_data()
+    _X, _Y = get_data()
+
+    X = _X[:-100]
+    Y = _Y[:-100]
+
+    testX = _X[-100:]
+    testY = _Y[-100:]
+
     N, D = X.shape
+    _N, _D = testX.shape
     M = 5
     K = 4
+
     Y = Y.astype(np.int32)
+    testY = testY.astype(np.int32)
 
     labels = np.zeros((N, K))
+    testLabels = np.zeros((_N, K))
 
     for i in range(len(Y)):
         labels[i, Y[i]] = 1
+
+    for i in range(len(testY)):
+        testLabels[i, testY[i]] = 1
 
     W1 = np.random.randn(D, M)
     b1 = np.random.randn(M)
@@ -77,24 +75,35 @@ def main():
 
     alpha = 0.001
     costs = []
+    testCosts = []
     epochs = 10000
 
     for i in range(epochs):
 
         predicted, hidden = forwardProp(X, W1, b1, W2, b2)
 
-        if i % 100 == 0:
+        if i % 1000 == 0:
+            testPredicted, testHidden = forwardProp(testX, W1, b1, W2, b2)
+
             _cost = cost(labels, predicted)
+            testCost = cost(testLabels, testPredicted)
+
             r = classification_rate(labels, predicted)
-            print('Cost: ', _cost, ' rate: ', r)
+            testRate = classification_rate(testLabels, testPredicted)
+
             costs.append(_cost)
+            testCosts.append(testCost)
+
+            print('Train Cost: ', _cost, ' Train Rate: ', r)
+            print('Test Cost: ', testCost, ' Test Rate: ', testRate)
 
         W2 -= alpha * derivative_w2(hidden, labels, predicted)
         b2 -= alpha * derivative_b2(labels, predicted)
         W1 -= alpha * derivative_w1(X, hidden, labels, predicted, W2)
         b1 -= alpha * derivative_b1(labels, predicted, W2, hidden)
 
-    plt.plot(costs)
+    plt.plot(costs, color='C0')
+    plt.plot(testCosts, color='C1')
     plt.show()
 
 if __name__ == "__main__":
